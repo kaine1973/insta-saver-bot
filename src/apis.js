@@ -102,18 +102,22 @@ const getMediaUrl = async (instagramUrl) => {
         return { success: false, data: { mediaUrl: null } };
     }
 };
-
+// reuse browser and page.
 let browser;
 let page;
 const scrapWithFastDl = async (requestUrl) => {
     if(browser == undefined){
-
+        // first initiate.
         browser = await Browser.Open();
         page = await browser.newPage();
 
+        // avoid new tab created by ads. wait for 10s to close new tab to "support" fastdl...
         browser.on("targetcreated", async (target)=>{
-            const newPage=await target.page();
-            if(newPage) newPage.close();
+            const newPage = await target.page();
+            if(newPage) {
+                setTimeout(() => {newPage.close()},10000)
+                page.bringToFront()
+            }
          });
     }
     const finalResponse = {
@@ -235,6 +239,8 @@ const scrapWithFastDl = async (requestUrl) => {
     } catch (error) {
         console.error("Error in scraping:", error);
     } finally {
+        // avoid close to reuse
+        // page.close()
         console.log("Page closed after scraping");
     }
 

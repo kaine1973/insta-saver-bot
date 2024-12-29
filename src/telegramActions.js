@@ -93,7 +93,7 @@ const sendMessage = async (context) => {
 const sendMediaGroup = async (context) => {
     const { chatId, messageId, requestedBy, requestUrl, mediaGroupUrls, caption } = context;
     try {
-        await Bot.sendMediaGroup(chatId, mediaGroupUrls, {reply_to_message_id:messageId,has_spoiler: true,caption:caption});
+        await Bot.sendMediaGroup(chatId, mediaGroupUrls, {reply_to_message_id:messageId,caption:caption});
         // Log successful group message sending
         logMessage({
             type: LOG_TYPE.GROUP,
@@ -124,7 +124,7 @@ const sendMediaGroup = async (context) => {
 const sendVideo = async (context) => {
     const { chatId,messageId, requestedBy, requestUrl, mediaUrl,caption } = context;
     try {
-        await Bot.sendVideo(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: true,caption: caption});
+        await Bot.sendVideo(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
         // Log successful video sending
         logMessage({
             type: LOG_TYPE.VIDEO,
@@ -171,7 +171,7 @@ const sendVideo = async (context) => {
 const sendPhoto = async (context) => {
     const { chatId,messageId, requestedBy, requestUrl, mediaUrl,caption } = context;
     try {
-        await Bot.sendPhoto(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: true, caption:caption});
+        await Bot.sendPhoto(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: false, caption:caption});
         // Log successful photo sending
         logMessage({
             type: LOG_TYPE.PHOTO,
