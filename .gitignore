@@ -10,3 +10,5 @@ logs
 puppeteer_data
 cookies.json
 cookies.txt
+src/config/mongod.conf
+**/.DS_Store

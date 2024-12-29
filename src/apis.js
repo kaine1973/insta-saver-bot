@@ -102,23 +102,37 @@ const getMediaUrl = async (instagramUrl) => {
         return { success: false, data: { mediaUrl: null } };
     }
 };
-
+// reuse browser and page.
+let browser;
+let page;
 const scrapWithFastDl = async (requestUrl) => {
-    const browser = Browser.browserInstance;
-    let page;
+    if(browser == undefined){
+        // first initiate.
+        browser = await Browser.Open();
+        page = await browser.newPage();
+
+        // avoid new tab created by ads. wait for 10s to close new tab to "support" fastdl...
+        browser.on("targetcreated", async (target)=>{
+            const newPage = await target.page();
+            if(newPage) {
+                setTimeout(() => {newPage.close()},10000)
+                page.bringToFront()
+            }
+         });
+    }
     const finalResponse = {
         data: {},
         success: false,
     };
 
     try {
-        page = await browser.newPage();
         if(requestUrl.includes("/stories/")){
-	    await page.goto("https://fastdl.app/story-saver");
-	}else{
+            await page.goto("https://fastdl.app/story-saver");
+        }else{
             await page.goto("https://fastdl.app/en");
-	}
-        console.log("browser Went to fastdl");
+        }
+        
+        console.log("browser page Went to fastdl");
 
         // Wait for the input field to be ready and type the URL
         await page.waitForSelector("#search-form-input");
@@ -225,7 +239,8 @@ const scrapWithFastDl = async (requestUrl) => {
     } catch (error) {
         console.error("Error in scraping:", error);
     } finally {
-        await page.close();
+        // avoid close to reuse
+        // page.close()
         console.log("Page closed after scraping");
     }
 
