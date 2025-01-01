@@ -24,12 +24,12 @@ class Browser {
                 };
 
                 this.browserInstance = await puppeteer.launch(launchOptions);
-                log("Browser launched successfully");
+                log("[Browser] browser launched successfully");
 
                 // Check authentication status on launch
                 // await this.CheckAuth();
             } catch (error) {
-                log("Error launching browser:", error);
+                log("[Browser] Error launching browser:", error);
             }
         }
 
@@ -40,7 +40,7 @@ class Browser {
         if (this.browserInstance) {
             await this.browserInstance.close();
             this.browserInstance = null;
-            log("Browser closed successfully");
+            log("[Browser] closed successfully");
         }
     }
 

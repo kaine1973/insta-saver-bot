@@ -40,11 +40,11 @@ Bot.onText(/^https:\/\/www\.instagram\.com(.+)/, async (msg, match) => {
     if (isURL) {
         let requestUrl = userMessage;
         let urlResponse = isValidInstaUrl(requestUrl);
-        log("urlResponse: ", urlResponse);
+        log("[Bot] urlResponse: ", urlResponse);
 
         if (!urlResponse.success || !urlResponse.shortCode) {
             // If domain cleaner fails, exit early
-            log("return from here as shortCode not found");
+            log("[Bot] shortCode not found from url");
             return;
         }
 
@@ -60,7 +60,7 @@ Bot.onText(/^https:\/\/www\.instagram\.com(.+)/, async (msg, match) => {
             // Save the request to the database
             await newRequest.save();
         } catch (error) {
-            log("Error saving content request:", error);
+            log("[DB] error saving content request:", error);
         }
     }
 });
@@ -69,7 +69,7 @@ Bot.onText(/^https:\/\/www\.instagram\.com(.+)/, async (msg, match) => {
 // Check if the module is being run directly
 if (require.main === module) {
     app.listen(PORT, async () => {
-        log(`Insta saver running at http://localhost:${PORT}`);
+        log(`[Init] running at http://localhost:${PORT}`);
 
         try {
             // Connect to MongoDB
@@ -81,7 +81,7 @@ if (require.main === module) {
             // Initialize the job queue
             await initQueue();
         } catch (error) {
-            log("Error during startup:", error);
+            log("[Init] error during startup:", error);
         }
     });
 } else {

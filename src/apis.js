@@ -3,7 +3,7 @@ const {
     findMediaByShortCode,
     cleanTimelineResponse,
     waitFor,
-    log,
+    log,logError
 } = require("./utils");
 const { INSTAGRAM_API_URL, MEDIA_TYPE } = require("./constants");
 const { exec } = require("child_process");
@@ -115,6 +115,7 @@ const scrapWithFastDl = async (requestUrl) => {
         browser.on("targetcreated", async (target)=>{
             const newPage = await target.page();
             if(newPage) {
+                log('[Browser] new page opened, url is', newPage.url())
                 setTimeout(() => {newPage.close()},10000)
                 page.bringToFront()
             }
@@ -132,12 +133,13 @@ const scrapWithFastDl = async (requestUrl) => {
             await page.goto("https://fastdl.app/en");
         }
         
-        console.log("browser page Went to fastdl");
+        log("[Browser] browser page Went to fastdl");
 
         // Wait for the input field to be ready and type the URL
         await page.waitForSelector("#search-form-input");
         await page.type("#search-form-input", requestUrl, { delay: 10 });
-        console.log("Typed URL into input field");
+        log("[Browser] Typed URL into input field");
+
 
         // Click the button with class search-form__button, type submit
         await page.evaluate(() => {
@@ -148,23 +150,36 @@ const scrapWithFastDl = async (requestUrl) => {
                 downloadButton.click();
             }
         });
-
-        try {
-            const captionElement = await page.waitForSelector(
-                ".output-list__caption",
-                { timeout: 9000 }
-            );
-
-            if (captionElement) {
-                const captionText = await page.evaluate(
-                    (element) => element.textContent,
-                    captionElement
+        let a = 0
+        while (true)
+        {
+            try {
+                page.bringToFront();
+                const captionElement = await page.waitForSelector(
+                    ".output-list__caption",
+                    { timeout: 5000 }
                 );
-                finalResponse.data.caption = captionText.trim();
+
+                if (captionElement) {
+                    const captionText = await page.evaluate(
+                        (element) => element.textContent,
+                        captionElement
+                    );
+                    finalResponse.data.caption = captionText.trim();
+                }
+            } catch (error) {
+                log("[Browser] failed to scrap caption: ", error);
+                
             }
-        } catch (error) {
-            console.log("failed to scrap caption: ", error);
+
+            a++;
+            if(a >= 3){
+                log(`[Browser] scrap timeout ${a} times."`);
+                break;
+            }
+            await waitFor(1000);
         }
+            
 
         try {
             // Wait for the <ul> element to be present
@@ -231,17 +246,17 @@ const scrapWithFastDl = async (requestUrl) => {
                 finalResponse.data.mediaList = mediaList;
                 finalResponse.success = true;
             } else {
-                console.error("UL element not found");
+                log("[Browser] ul element not found");
             }
         } catch (error) {
-            console.error("Error scraping items:", error);
+            log("[Browser] error scraping items:", error);
         }
     } catch (error) {
-        console.error("Error in scraping:", error);
+        log("[Browser] error in scraping:", error);
     } finally {
         // avoid close to reuse
         // page.close()
-        console.log("Page closed after scraping");
+        log("[Browser] page 'not' closed after scraping");
     }
 
     return finalResponse;

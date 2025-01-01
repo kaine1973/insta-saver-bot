@@ -18,22 +18,19 @@ const logPendingCount = async () => {
         status: REQUEST_STATUS.PENDING,
         retryCount: { $lt: 5 },
     });
-    log("Remaining items in queue:", pendingCount);
+    log("[Queue] remaining items: ", pendingCount);
 };
 
 // Process the queue of content requests
 const processQueue = async () => {
-    log("processQueue run -----------------");
     if (processing || queue.length === 0) {
-        log("queue stopped processing ----------------");
-        log("processing ", processing);
-        log("queue length ", queue.length);
+        log(`[Queue] processing: ${processing?"yes":"no"}, length: ${queue.length}`);
         return;
     }
 
     processing = true;
     currentJob = queue.shift(); // Assign the job to currentJob
-    log("job to process: ", currentJob);
+    log("[Job] processing: ", currentJob);
     await ContentRequest.findByIdAndUpdate(currentJob.id, {
         status: REQUEST_STATUS.PROCESSING,
         updatedAt: new Date()
@@ -93,7 +90,7 @@ const processQueue = async () => {
             logPendingCount();
         }
     } catch (error) {
-        log("Error processing job:", error);
+        log("[Job] failed processing: ", error);
     } finally {
         processing = false;
         currentJob = null; // Clear the current job after processing
@@ -124,8 +121,6 @@ const addToQueue = async (data) => {
     }
 
     queue.push(data);
-
-    log("!processing ", !processing);
 };
 
 // Fetch pending requests from the database and add them to the queue
@@ -137,7 +132,7 @@ const fetchPendingRequests = async () => {
         })
             .sort({ requestedAt: 1 })
             .limit(QUEUE_LIMIT);
-        log("Fetched pending requests: ", pendingRequests.length);
+        log("[DB] fetched pending requests: ", pendingRequests.length);
 
         // Clear the current queue
         queue = [];
@@ -155,11 +150,11 @@ const fetchPendingRequests = async () => {
             });
         });
 
-        log("Queue updated with fresh pending requests.", queue.length);
+        log("[Queue] updated with fresh pending requests.", queue.length);
         logPendingCount();
 
     } catch (error) {
-        log("Error fetching pending requests:", error);
+        log("[Queue] Error fetching pending requests:", error);
     }
 };
 
@@ -167,15 +162,13 @@ const fetchPendingRequests = async () => {
 const initQueue = async () => {
     try {
         await fetchPendingRequests();
-        log("Queue initialized with pending requests");
+        log("[Queue] initialized with pending requests");
 
         // Set up a watcher for new content requests in MongoDB
         const changeStream = ContentRequest.watch();
         changeStream.on("change", async (change) => {
             if (change.operationType === "insert") {
-                console.log(
-                    "got new request ========================================="
-                );
+                log("[Queue] got new request");
                 const newRequest = change.fullDocument;
 
                 // Only add request if queue is empty, otherwise wait for queue to complete
@@ -190,7 +183,7 @@ const initQueue = async () => {
                         chatId: newRequest.chatId
                     });
                 }
-                log("New request added to the queue:", newRequest._id);
+                log("[Queue] request added: ", newRequest._id);
             }
         });
 
@@ -198,7 +191,7 @@ const initQueue = async () => {
         setInterval(fetchPendingRequests, 60000); // Adjust the interval as needed
         setInterval(processQueue, 10000)
     } catch (error) {
-        log("Error initializing queue: ", error);
+        log("[Queue] error initializing queue: ", error);
     }
 };
 

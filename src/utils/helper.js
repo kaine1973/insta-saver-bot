@@ -17,20 +17,20 @@ const isValidInstaUrl = (url) => {
     try {
         const { host, pathname } = new URL(url);
 
-        if (host !== "www.instagram.com") {
+        if (host === "www.instagram.com") {
+            response.success = true;
+            response.shortCode = url;
             return response;
         }
         [type,shortCode] = pathname.trim().split("/").slice(1,3);
-        log("share link type is: "+type)
-        if (type === "stories" || shortCode?.length === 11) {
+        log("[Bot] share link type is: "+type)
+        if (type === "stories" || type === "p") {
             return {
                 url: url,
                 shortCode,
                 success: true,
             };
         }
-	log(response)
-
         return response;
     } catch (error) {
         log("error in isValid : ", error);

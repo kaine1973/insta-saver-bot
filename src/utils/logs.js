@@ -27,10 +27,15 @@ const formatLogMessage = (args) => {
         .map((arg) => {
             if (arg instanceof Error) {
                 // Handle Error objects separately
-                return `Error: ${arg.message}\n${arg.stack}`;
+                return `Error: ${arg.message}
+                        ${arg.stack}`;
             } else if (typeof arg === "object") {
                 // Stringify objects for better logging
-                return JSON.stringify(arg, null, 2);
+                let result = "";
+                for (const [key, value] of Object.entries(arg)) {
+                    result += ` ${key}: ${value}\n`;
+                }
+                return result
             } else {
                 return arg.toString();
             }
@@ -52,8 +57,11 @@ const log = (...args) => {
         fs.mkdirSync(logDirectory);
     }
 
-    const formattedLogMessage = `[${timestamp}] ${formatLogMessage(args)}\n`; // Format log message
+    let formattedLogMessage = `[${timestamp}] ${formatLogMessage(args)}`; // Format log message
+    // Optionally print to console as well
+    console.log(formattedLogMessage);
 
+    formattedLogMessage = `[${timestamp}] ${formatLogMessage(args)}\n`; // Format log message
     // Append log message to the log file
     fs.appendFile(logFileName, formattedLogMessage, (err) => {
         if (err) {
@@ -61,16 +69,14 @@ const log = (...args) => {
         }
     });
 
-    // Optionally print to console as well
-    console.log(formattedLogMessage);
 };
 
 const logMessage = ({ type, requestedBy, chatId, requestUrl }) => {
     const { userName, firstName } = requestedBy;
-    const DIVIDER = "\n-------------------------------------\n";
-    const LOG = `\n User: ${
-        firstName ? firstName : userName
-    }\n Chat Id: ${chatId}\n Request Url: ${requestUrl}`;
+    const DIVIDER = "-------------------------------------\n";
+    const LOG = `User: ${firstName ? firstName : userName}\n 
+                Chat Id: ${chatId}\n 
+                Request Url: ${requestUrl}`;
     switch (type) {
         case LOG_TYPE.GROUP:
             log(DIVIDER, SUCCESS_MESSAGE.GROUP, LOG, DIVIDER);
@@ -102,12 +108,12 @@ const logError = ({
     requestUrl,
 }) => {
     const { userName, firstName } = requestedBy;
-    const DIVIDER = "\n-------------------------------------\n";
-    const LOG = `\n Code: ${errorCode ? errorCode : ""}\n Description: ${
-        errorDescription ? errorDescription : ""
-    }\n User: ${
-        firstName ? firstName : userName
-    }\n Chat Id: ${chatId}\n Request Url: ${requestUrl}`;
+    const DIVIDER = "-------------------------------------\n";
+    const LOG = `Code: ${errorCode ? errorCode : ""}\n 
+                  Description: ${errorDescription ? errorDescription : ""}\n 
+                  User: ${firstName ? firstName : userName}\n 
+                  Chat Id: ${chatId}\n 
+                  Request Url: ${requestUrl}`;
 
     switch (type) {
         case ERROR_TYPE.RATE_LIMIT:
