@@ -5,7 +5,6 @@ const {
     waitFor,
     log,logError
 } = require("./utils");
-const fs = require('fs');
 const { saveFromUrl } = require("./utils/helper");
 const { INSTAGRAM_API_URL, MEDIA_TYPE } = require("./constants");
 const { exec } = require("child_process");
@@ -384,7 +383,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                             mediaList[i].mediaType = MEDIA_TYPE.VIDEO;
                             const {result, file} = await saveFromUrl(mediaList[i].mediaUrl, mediaList[i].shortCode+".mp4" );
                             if(result){
-                                mediaList[i].mediaUrl = fs.createReadStream(file)
+                                mediaList[i].mediaUrl = file
                             }
                         } else {
                             mediaList[i].mediaType = MEDIA_TYPE.IMAGE;
@@ -397,7 +396,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
                         const {result, file} = await saveFromUrl(firstItem.mediaUrl, "video.mp4");
                         if(result){
-                            firstItem.mediaUrl = fs.createReadStream(file)
+                            firstItem.mediaUrl = file
                         }
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;

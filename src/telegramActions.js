@@ -6,6 +6,7 @@ const {
     MESSSAGE,
     MEDIA_TYPE,
 } = require("./constants");
+const fs = require('fs');
 const { log, logMessage, logError } = require("./utils");
 
 // Send typing action to indicate user activity
@@ -124,7 +125,11 @@ const sendMediaGroup = async (context) => {
 const sendVideo = async (context) => {
     const { chatId,messageId, requestedBy, requestUrl, mediaUrl,caption } = context;
     try {
-        await Bot.sendVideo(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
+        mediaSend = mediaUrl;
+        if(mediaUrl.startWith('/tmp/')){
+            mediaSend = fs.createReadStream(mediaUrl);
+        }
+        await Bot.sendVideo(chatId, mediaSend,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
         // Log successful video sending
         logMessage({
             type: LOG_TYPE.VIDEO,
@@ -257,7 +262,7 @@ const sendRequestedData = async (data) => {
             // Prepare media group array to send
             const mediaGroupUrls = [];
             for (let i = 0; i < mediaList?.length; i++) {
-                
+
                 let mediaItem = mediaList[i];
                 if (mediaItem.mediaType === MEDIA_TYPE.IMAGE) {
                     mediaGroupUrls.push({
