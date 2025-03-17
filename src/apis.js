@@ -381,7 +381,10 @@ const scrapWithSnapTik = async (requestUrl) => {
                     for (let i = 0; i < mediaList.length; i++) {
                         if (mediaList[i].classString.includes("video") || mediaList[i].classString.includes("MP4")) {
                             mediaList[i].mediaType = MEDIA_TYPE.VIDEO;
-                            saveFromUrl(firstItem.mediaUrl, "video.mp4");
+                            const {result, file} = await saveFromUrl(mediaList[i].mediaUrl, mediaList[i].shortCode+".mp4" );
+                            if(result){
+                                mediaList[i].mediaUrl = fs.createReadStream(file)
+                            }
                         } else {
                             mediaList[i].mediaType = MEDIA_TYPE.IMAGE;
                         }
@@ -391,10 +394,13 @@ const scrapWithSnapTik = async (requestUrl) => {
 
                     if (firstItem.classString.includes("video") || firstItem.classString.includes("MP4")) {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
+                        const {result, file} = await saveFromUrl(firstItem.mediaUrl, "video.mp4");
+                        if(result){
+                            mediaList[i].mediaUrl = fs.createReadStream(file)
+                        }
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;
                     }
-                    saveFromUrl(firstItem.mediaUrl, "video.mp4");
                 }
                 finalResponse.data.mediaUrl = firstItem.mediaUrl;
                 finalResponse.data.displayUrl = firstItem.displayUrl;

@@ -74,7 +74,7 @@ const saveFromUrl = async (url, fileName) =>{
             log("[helper]Download Completed: " + fileName);
         });
     });
-    return true;
+    return {result: true, file: '/tmp/' + fileName};
 }
 module.exports = {
     waitFor,
