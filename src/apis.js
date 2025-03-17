@@ -339,18 +339,19 @@ const scrapWithSnapTik = async (requestUrl) => {
                 timeout: 5000,
             });
 
-            // Extract displayUrl from <img> tag
-            const imgTag = ulElement.querySelector(".search-result__item-img");
-            const displayUrl = imgTag ? imgTag.src : "";
             if (ulElement) {
                 // Evaluate in the context of the page to extract information from each <li> item
                 const mediaList = await page.evaluate((ul) => {
                     const itemList = [];
+
+                    // Extract displayUrl from <img> tag
+                    const imgTag = ul.querySelector(".search-result__item-img");
+                    const displayUrl = imgTag ? imgTag.src : "";
                     // Select all <li> elements under the <ul>
                     const liElements =
                         ul.querySelectorAll(".search-result-download-main-item");
                     
-                    let lastElement = myArray.pop();
+                    let lastElement = liElements.pop();
 
                     // Extract mediaUrl from <a> tag
                     const aTag = lastElement.querySelector("a");

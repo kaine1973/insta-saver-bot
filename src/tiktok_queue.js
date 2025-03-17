@@ -18,13 +18,13 @@ const logPendingCount = async () => {
         status: REQUEST_STATUS.PENDING,
         retryCount: { $lt: 5 },
     });
-    log("[Queue] remaining items: ", pendingCount);
+    log("[TikTokQueue] remaining items: ", pendingCount);
 };
 
 // Process the queue of content requests
 const processTikTokQueue = async () => {
     if (processing || queue.length === 0) {
-        log(`[Queue] processing: ${processing?"yes":"no"}, length: ${queue.length}`);
+        log(`[TikTokQueue] processing: ${processing?"yes":"no"}, length: ${queue.length}`);
         return;
     }
 
@@ -150,11 +150,11 @@ const fetchPendingRequests = async () => {
             });
         });
 
-        log("[Queue] updated with fresh pending requests.", queue.length);
+        log("[TikTokQueue] updated with fresh pending requests.", queue.length);
         logPendingCount();
 
     } catch (error) {
-        log("[Queue] Error fetching pending requests:", error);
+        log("[TikTokQueue] Error fetching pending requests:", error);
     }
 };
 
@@ -162,13 +162,13 @@ const fetchPendingRequests = async () => {
 const initTikTokQueue = async () => {
     try {
         await fetchPendingRequests();
-        log("[Queue] initialized with pending requests");
+        log("[TikTokQueue] initialized with pending requests");
 
         // Set up a watcher for new content requests in MongoDB
         const changeStream = TikTokRequest.watch();
         changeStream.on("change", async (change) => {
             if (change.operationType === "insert") {
-                log("[Queue] got new request");
+                log("[TikTokQueue] got new request");
                 const newRequest = change.fullDocument;
 
                 // Only add request if queue is empty, otherwise wait for queue to complete
@@ -183,7 +183,7 @@ const initTikTokQueue = async () => {
                         chatId: newRequest.chatId
                     });
                 }
-                log("[Queue] request added: ", newRequest._id);
+                log("[TikTokQueue] request added: ", newRequest._id);
             }
         });
 
@@ -191,7 +191,7 @@ const initTikTokQueue = async () => {
         setInterval(fetchPendingRequests, 60000); // Adjust the interval as needed
         setInterval(processTikTokQueue, 10000)
     } catch (error) {
-        log("[Queue] error initializing queue: ", error);
+        log("[TikTokQueue] error initializing queue: ", error);
     }
 };
 
