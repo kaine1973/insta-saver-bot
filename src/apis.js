@@ -387,7 +387,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                 } else if (mediaList.length === 1) {
                     firstItem = mediaList.shift();
 
-                    if (firstItem.classString.includes("video") || mediaList[i].classString.includes("MP4")) {
+                    if (firstItem.classString.includes("video") || firstItem.classString.includes("MP4")) {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;
