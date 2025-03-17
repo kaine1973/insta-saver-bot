@@ -63,15 +63,26 @@ const isValidTikTokUrl = (url) => {
 };
 
 const saveFromUrl = async (url, fileName) =>{
-
-    const request = await https.get(url, function(response) {
-        fs.writeFileSync('/tmp/' + fileName, response);
-        
-        // after download completed close filestream
-
-        log("[helper]Download Completed: " + fileName);
-    });
-    return {result: true, file: '/tmp/' + fileName};
+    function downloadFile(url, destination) {
+        return new Promise((resolve, reject) => {
+            const file = fs.createWriteStream(destination);
+            https.get(url, (response) => {
+                response.pipe(file);
+    
+                file.on('finish', () => {
+                    file.close(() => {
+                        resolve();
+                    });
+                });
+            }).on('error', (err) => {
+                fs.unlink(destination, () => {}); // Delete the file async if there's an error
+                reject(err);
+            });
+        });
+    }
+    const file = '/tmp/'+fileName
+    await downloadFile(url, file);
+    return {result: true, file: file};
 }
 module.exports = {
     waitFor,
