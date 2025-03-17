@@ -43,4 +43,4 @@ const TikTokRequestSchema = new mongoose.Schema(
 const TikTokRequest = mongoose.model("TikTokRequest", TikTokRequestSchema);
 
 
-module.exports = {ContentRequest, TikTokRequest};
+module.exports = { ContentRequest, TikTokRequest };

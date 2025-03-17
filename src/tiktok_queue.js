@@ -1,5 +1,5 @@
 const { REQUEST_STATUS, MESSSAGE } = require("./constants");
-const TikTokRequest = require("./models/ContentRequest");
+const {TikTokRequest} = require("./models/ContentRequest");
 const ContentResponse = require("./models/ContentResponse");
 const { log, waitFor } = require("./utils");
 
