@@ -3,11 +3,12 @@ const express = require("express");
 const app = express();
 const { Bot, connectDB, Browser } = require("./config");
 const { initQueue } = require("./queue");
+const { initTikTokQueue } = require("./tiktok_queue");
 const { log, domainCleaner, extractShortCode } = require("./utils");
-const ContentRequest = require("./models/ContentRequest");
+const {ContentRequest, TikTokRequest} = require("./models/ContentRequest");
 const { MESSSAGE } = require("./constants");
 const { sendMessage } = require("./telegramActions");
-const { isValidInstaUrl } = require("./utils/helper");
+const { isValidInstaUrl, isValidTikTokUrl } = require("./utils/helper");
 
 // Set the server to listen on port 6060
 const PORT = process.env.PORT || 6060;
@@ -64,7 +65,43 @@ Bot.onText(/^https:\/\/www\.instagram\.com(.+)/, async (msg, match) => {
         }
     }
 });
+Bot.onText(/^https:\/\/vt\.tiktok\.com(.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const messageId = msg.message_id
+    const userMessage = msg.text;
+    const userName = msg?.from?.username || "";
+    const firstName = msg?.from?.first_name || "";
+    let isURL =
+        msg.entities &&
+        msg.entities.length > 0 &&
+        msg.entities[0].type === "url";
+    // Process user message
+    if (isURL) {
+        let requestUrl = userMessage;
+        let urlResponse = isValidTikTokUrl(requestUrl);
+        log("[Bot] urlResponse: ", urlResponse);
 
+        if (!urlResponse.success) {
+            // If domain cleaner fails, exit early
+            log("[Bot] shortCode not found from url");
+            return;
+        }
+
+        const newRequest = new TikTokRequest({
+            chatId,
+            requestUrl,
+            requestedBy: { userName, firstName },
+            messageId: messageId
+        });
+
+        try {
+            // Save the request to the database
+            await newRequest.save();
+        } catch (error) {
+            log("[DB] error saving content request:", error);
+        }
+    }
+});
 // Check for Master Backend configuration [OPTIONAL]
 // Check if the module is being run directly
 if (require.main === module) {
@@ -80,6 +117,7 @@ if (require.main === module) {
 
             // Initialize the job queue
             await initQueue();
+            await initTikTokQueue();
         } catch (error) {
             log("[Init] error during startup:", error);
         }

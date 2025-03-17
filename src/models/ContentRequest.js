@@ -21,4 +21,26 @@ const contentRequestSchema = new mongoose.Schema(
 
 const ContentRequest = mongoose.model("ContentRequest", contentRequestSchema);
 
-module.exports = ContentRequest;
+
+const TikTokRequestSchema = new mongoose.Schema(
+    {
+        chatId: { type: String, required: true },
+        messageId: String,
+        requestUrl: { type: String, required: true },
+        requestedBy: {
+            userName: String,
+            firstName: String,
+        },
+        shortCode: { type: String },
+        status: { type: String, default: REQUEST_STATUS.PENDING },
+        retryCount: { type: Number, default: 0 },
+        requestedAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now },
+    },
+    { versionKey: false, collection: "TikTokRequest" }
+);
+
+const TikTokRequest = mongoose.model("TikTokRequest", TikTokRequestSchema);
+
+
+module.exports = {ContentRequest, TikTokRequest};

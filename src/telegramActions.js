@@ -270,10 +270,12 @@ const sendRequestedData = async (data) => {
                     });
                 }
             }
-
             await sendChatAction({...userContext, action:"typing"});
             // Send media group to chat
-            await sendMediaGroup({ ...userContext, mediaGroupUrls, caption:caption });
+            const splitGroup = splitArrayIntoChunks(mediaGroupUrls, 6)
+            splitGroup.forEach(async (subGroup, i) => {
+                await sendMediaGroup({ ...userContext, mediaGroupUrls: subGroup, caption:`${i}/${splitGroup.length} \n${caption}` });
+            });
         } else if (mediaType === MEDIA_TYPE.VIDEO) {
             await sendChatAction({...userContext, action:"upload_video"});
             // Send single video to chat
@@ -294,7 +296,13 @@ const sendRequestedData = async (data) => {
     // Dump media in local group
     // await uploadContent({ ...userContext, chatId: "-1002207692130" });
 };
-
+function splitArrayIntoChunks(array, chunkSize) {
+    let result = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        result.push(array.slice(i, i + chunkSize));
+    }
+    return result;
+}
 // Export all functions for sending messages and media to a chat
 module.exports = {
     sendChatAction,

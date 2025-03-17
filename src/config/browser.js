@@ -14,11 +14,12 @@ class Browser {
             try {
                 const launchOptions = {
                     headless: true,
-                    defaultViewport: { width: 1280, height: 800 },
+                    defaultViewport: { width: 2560, height: 4440 },
                     args: [
                         "--no-sandbox",
                         "--disable-setuid-sandbox",
                         "--disable-dev-shm-usage",
+                        "--window-size=2560,1440"
                     ],
                     // userDataDir,
                 };

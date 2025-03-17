@@ -38,9 +38,31 @@ const isValidInstaUrl = (url) => {
         return response;
     }
 };
+const isValidTikTokUrl = (url) => {
+    let response = {
+        success: false,
+        url,
+    };
 
+    try {
+        const { host, pathname } = new URL(url);
+
+        if (host === "vt.tiktok.com") {
+
+            response.success = true;
+            response.shortCode = pathname.substring(1);
+            return response;
+        }
+        return response;
+    } catch (error) {
+        log("error in isValid : ", error);
+        log("caused by : ", url);
+        return response;
+    }
+};
 module.exports = {
     waitFor,
     findMediaByShortCode,
     isValidInstaUrl,
+    isValidTikTokUrl
 };
