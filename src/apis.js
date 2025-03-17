@@ -396,7 +396,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
                         const {result, file} = await saveFromUrl(firstItem.mediaUrl, "video.mp4");
                         if(result){
-                            mediaList[i].mediaUrl = fs.createReadStream(file)
+                            firstItem.mediaUrl = fs.createReadStream(file)
                         }
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;
