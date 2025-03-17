@@ -1,5 +1,5 @@
 const { log } = require("./logs");
-
+const https = require('https');
 const waitFor = async (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -60,6 +60,7 @@ const isValidTikTokUrl = (url) => {
         return response;
     }
 };
+
 module.exports = {
     waitFor,
     findMediaByShortCode,

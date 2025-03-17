@@ -351,7 +351,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                     const liElements =
                         ul.querySelectorAll(".search-result-download-main-item");
                     
-                    let lastElement = liElements.pop();
+                    let lastElement = liElements[liElements.length - 1];
 
                     // Extract mediaUrl from <a> tag
                     const aTag = lastElement.querySelector("a");
@@ -361,10 +361,9 @@ const scrapWithSnapTik = async (requestUrl) => {
                     // Extract mediaType from <span> tag
                     const spanTag = lastElement.querySelector(".search-result-download-main-quality");
                     const classString = spanTag ? spanTag.textContent : "";
-
                     // Push the extracted data into itemList
                     itemList.push({ mediaUrl, displayUrl, classString });
-
+                    
 
                     return itemList;
                 }, ulElement);
@@ -379,7 +378,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                     firstItem = mediaList[0];
 
                     for (let i = 0; i < mediaList.length; i++) {
-                        if (mediaList[i].classString.includes("video")) {
+                        if (mediaList[i].classString.includes("video") || mediaList[i].classString.includes("MP4")) {
                             mediaList[i].mediaType = MEDIA_TYPE.VIDEO;
                         } else {
                             mediaList[i].mediaType = MEDIA_TYPE.IMAGE;
@@ -388,7 +387,7 @@ const scrapWithSnapTik = async (requestUrl) => {
                 } else if (mediaList.length === 1) {
                     firstItem = mediaList.shift();
 
-                    if (firstItem.classString.includes("video")) {
+                    if (firstItem.classString.includes("video") || mediaList[i].classString.includes("MP4")) {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;

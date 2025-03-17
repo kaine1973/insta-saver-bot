@@ -42,7 +42,7 @@ const processTikTokQueue = async () => {
         }
 
         let result = await scrapWithSnapTik(currentJob.requestUrl);
-
+        
         log(MESSSAGE.DOWNLOADING.replace("requestUrl", currentJob.requestUrl));
 
         if (!result.success) {

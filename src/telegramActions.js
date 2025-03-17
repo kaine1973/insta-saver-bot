@@ -257,6 +257,7 @@ const sendRequestedData = async (data) => {
             // Prepare media group array to send
             const mediaGroupUrls = [];
             for (let i = 0; i < mediaList?.length; i++) {
+                
                 let mediaItem = mediaList[i];
                 if (mediaItem.mediaType === MEDIA_TYPE.IMAGE) {
                     mediaGroupUrls.push({
