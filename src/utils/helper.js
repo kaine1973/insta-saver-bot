@@ -61,9 +61,25 @@ const isValidTikTokUrl = (url) => {
     }
 };
 
+const saveFromUrl = async (url, fileName) =>{
+    const fs = require('fs');
+
+    const file = fs.createWriteStream('/tmp/' + fileName);
+    const request = await https.get(url, function(response) {
+        response.pipe(file);
+
+        // after download completed close filestream
+        file.on("finish", () => {
+            file.close();
+            log("[helper]Download Completed: " + fileName);
+        });
+    });
+    return true;
+}
 module.exports = {
     waitFor,
     findMediaByShortCode,
     isValidInstaUrl,
-    isValidTikTokUrl
+    isValidTikTokUrl,
+    saveFromUrl
 };
