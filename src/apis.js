@@ -5,6 +5,7 @@ const {
     waitFor,
     log,logError
 } = require("./utils");
+const fs = require('fs');
 const { saveFromUrl } = require("./utils/helper");
 const { INSTAGRAM_API_URL, MEDIA_TYPE } = require("./constants");
 const { exec } = require("child_process");

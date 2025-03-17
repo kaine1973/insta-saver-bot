@@ -1,5 +1,6 @@
 const { log } = require("./logs");
 const https = require('https');
+const fs = require('fs');
 const waitFor = async (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -62,7 +63,6 @@ const isValidTikTokUrl = (url) => {
 };
 
 const saveFromUrl = async (url, fileName) =>{
-    const fs = require('fs');
 
     const file = fs.createWriteStream('/tmp/' + fileName);
     const request = await https.get(url, function(response) {
