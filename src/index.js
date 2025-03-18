@@ -86,9 +86,9 @@ Bot.onText(/^https:\/\/vt\.tiktok\.com(.+)/, async (msg, match) => {
             log("[Bot] shortCode not found from url");
             return;
         }
-
         const newRequest = new TikTokRequest({
             chatId,
+            shortCode: urlResponse.shortCode,
             requestUrl,
             requestedBy: { userName, firstName },
             messageId: messageId
