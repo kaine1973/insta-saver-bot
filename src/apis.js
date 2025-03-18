@@ -394,7 +394,7 @@ const scrapWithSnapTik = async (requestUrl) => {
 
                     if (firstItem.classString.includes("video") || firstItem.classString.includes("MP4")) {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
-                        const {result, file} = await saveFromUrl(firstItem.mediaUrl, "video.mp4");
+                        const {result, file} = await saveFromUrl(firstItem.mediaUrl, firstItem.shortCode+".mp4");
                         if(result){
                             firstItem.mediaUrl = file
                         }
