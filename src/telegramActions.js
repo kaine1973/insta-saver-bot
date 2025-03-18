@@ -126,7 +126,8 @@ const sendVideo = async (context) => {
     const { chatId,messageId, requestedBy, requestUrl, mediaUrl,caption } = context;
     try {
         mediaSend = mediaUrl;
-        if(mediaUrl.startWith('/tmp/')){
+        log("sending media :", mediaUrl);
+        if(mediaUrl.startsWith('/tmp/')){
             mediaSend = fs.createReadStream(mediaUrl);
         }
         log("mediaUrl ", mediaUrl);
