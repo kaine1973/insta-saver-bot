@@ -129,6 +129,8 @@ const sendVideo = async (context) => {
         if(mediaUrl.startWith('/tmp/')){
             mediaSend = fs.createReadStream(mediaUrl);
         }
+        log("mediaUrl ", mediaUrl);
+        log("mediaSend ", mediaSend);
         await Bot.sendVideo(chatId, mediaSend,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
         // Log successful video sending
         logMessage({
