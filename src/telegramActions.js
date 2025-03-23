@@ -125,14 +125,7 @@ const sendMediaGroup = async (context) => {
 const sendVideo = async (context) => {
     const { chatId,messageId, requestedBy, requestUrl, mediaUrl,caption } = context;
     try {
-        mediaSend = mediaUrl;
-        log("sending media :", mediaUrl);
-        if(mediaUrl.startsWith('/tmp/')){
-            mediaSend = fs.createReadStream(mediaUrl);
-        }
-        log("mediaUrl ", mediaUrl);
-        log("mediaSend ", mediaSend);
-        await Bot.sendVideo(chatId, mediaSend,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
+        await Bot.sendVideo(chatId, mediaUrl,{reply_to_message_id:messageId,has_spoiler: false,caption: caption});
         // Log successful video sending
         logMessage({
             type: LOG_TYPE.VIDEO,

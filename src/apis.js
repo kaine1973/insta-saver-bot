@@ -5,7 +5,6 @@ const {
     waitFor,
     log,logError
 } = require("./utils");
-const { saveFromUrl } = require("./utils/helper");
 const { INSTAGRAM_API_URL, MEDIA_TYPE } = require("./constants");
 const { exec } = require("child_process");
 const { Browser } = require("./config");
@@ -185,7 +184,7 @@ const scrapWithFastDl = async (requestUrl) => {
         try {
             // Wait for the <ul> element to be present
             const ulElement = await page.waitForSelector(".output-list__list", {
-                timeout: 5000,
+                timeout: 7000,
             });
 
             if (ulElement) {
@@ -379,12 +378,8 @@ const scrapWithSnapTik = async (requestUrl) => {
                     firstItem = mediaList[0];
 
                     for (let i = 0; i < mediaList.length; i++) {
-                        if (mediaList[i].classString.includes("video") || mediaList[i].classString.includes("MP4")) {
+                        if (mediaList[i].classString.includes("video")) {
                             mediaList[i].mediaType = MEDIA_TYPE.VIDEO;
-                            const {result, file} = await saveFromUrl(mediaList[i].mediaUrl, mediaList[i].shortCode+".mp4" );
-                            if(result){
-                                mediaList[i].mediaUrl = file
-                            }
                         } else {
                             mediaList[i].mediaType = MEDIA_TYPE.IMAGE;
                         }
@@ -392,12 +387,8 @@ const scrapWithSnapTik = async (requestUrl) => {
                 } else if (mediaList.length === 1) {
                     firstItem = mediaList.shift();
 
-                    if (firstItem.classString.includes("video") || firstItem.classString.includes("MP4")) {
+                    if (firstItem.classString.includes("video")) {
                         finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
-                        const {result, file} = await saveFromUrl(firstItem.mediaUrl, firstItem.shortCode+".mp4");
-                        if(result){
-                            firstItem.mediaUrl = file
-                        }
                     } else {
                         finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;
                     }
