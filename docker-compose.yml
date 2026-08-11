@@ -3,27 +3,34 @@ version: '3.1'
 services:
 
   mongo:
-    image: mongo
+    image: mongo:4.4
     container_name: insta-mongo
     restart: always
     ports:
       - 27018:27017
     volumes:
       - ./mongo_etc:/etc/mongo/
+      - mongo1_data:/data/db
     command: ["mongod", "--config", "/etc/mongo/mongod.conf"]
     networks:
       vpcbr:
         ipv4_address: 10.5.0.5
+
   mongosetup:
     container_name: mongo-setup
-    image: mongo
     depends_on:
-      - mongo
-    restart: "no"
-    entrypoint: [ "bash", "-c", "sleep 10 &&  mongosh --host 10.5.0.5 --port 27017 --eval 'rs.initiate()' "]
+      mongo:
+        condition: service_started
+        required: true
+    entrypoint:
+      - bash
+      - -c
+      - 'sleep 10 && mongo --host 10.5.0.5 --port 27017 --eval "rs.initiate()"'
+    image: mongo:4.4
     networks:
       vpcbr:
         ipv4_address: 10.5.0.7
+    restart: "no"
 
   insta-bot:
     container_name: insta-bot
@@ -48,3 +55,5 @@ networks:
      config:
        - subnet: 10.5.0.0/24
          gateway: 10.5.0.1
+volumes:
+  mongo1_data:
