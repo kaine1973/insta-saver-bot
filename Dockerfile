@@ -1,4 +1,4 @@
-FROM node:18.0.0-buster-slim
+FROM node:22-bookworm
 
 # Set environment variables for Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
