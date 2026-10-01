@@ -105,7 +105,7 @@ const getMediaUrl = async (instagramUrl) => {
 // reuse browser and page.
 let browser;
 let page;
-const scrapWithFastDl = async (requestUrl) => {
+const scrapWithFastDl1 = async (requestUrl) => {
     if(browser == undefined){
         // first initiate.
         browser = await Browser.Open();
@@ -127,11 +127,7 @@ const scrapWithFastDl = async (requestUrl) => {
     };
 
     try {
-        if(requestUrl.includes("/stories/")){
-            await page.goto("https://fastdl.app/story-saver");
-        }else{
-            await page.goto("https://fastdl.app/en");
-        }
+        await page.goto("https://fastdl.app/en5IW");
         
         log("[Browser] browser page Went to fastdl");
 
@@ -261,6 +257,128 @@ const scrapWithFastDl = async (requestUrl) => {
 
     return finalResponse;
 };
+
+
+const scrapWithFastDl = async (requestUrl) => {
+    if(browser == undefined){
+        // first initiate.
+        browser = await Browser.Open();
+        page = await browser.newPage();
+
+        // avoid new tab created by ads. wait for 10s to close new tab to "support" fastdl...
+        browser.on("targetcreated", async (target)=>{
+            const newPage = await target.page();
+            if(newPage) {
+                log('[Browser] new page opened, url is', newPage.url())
+                setTimeout(() => {newPage.close()},10000)
+                page.bringToFront()
+            }
+         });
+    }
+    const finalResponse = {
+        data: {},
+        success: false,
+    };
+
+    try {
+        await page.goto("https://saveclip.app/en8");
+        
+        log("[Browser] browser page Went to fastdl");
+
+        // Wait for the input field to be ready and type the URL
+        await page.waitForSelector("#s_input");
+        await page.type("#s_input", requestUrl, { delay: 10 });
+        log("[Browser] Typed URL into input field");
+
+
+        // Click the button with class search-form__button, type submit
+        await page.evaluate(async () => {
+            await ksearchvideo(!1,"media")
+
+        });
+        let a = 0
+
+        try {
+            // Wait for the <ul> element to be present
+            const ulElement = await page.waitForSelector(".download-box", {
+                timeout: 7000,
+            });
+
+            if (ulElement) {
+                // Evaluate in the context of the page to extract information from each <li> item
+                const mediaList = await page.evaluate((ul) => {
+                    const itemList = [];
+                    // Select all <li> elements under the <ul>
+                    const liElements =
+                        ul.querySelectorAll(".download-items");
+
+                    // Loop through each <li> element
+                    liElements.forEach((li) => {
+                        // Extract mediaUrl from <a> tag
+                        const aTag = li.querySelector("a");
+                        const mediaUrl = aTag ? aTag.href : "";
+
+                        // Extract displayUrl from <img> tag
+                        const imgTag = li.querySelector("img");
+                        const displayUrl = imgTag ? imgTag.src : "";
+
+                        // Extract mediaType from <span> tag
+                        const spanTag = li.querySelector("span.format-icon > i");
+                        const classString = spanTag ? spanTag.className : "";
+
+                        // Push the extracted data into itemList
+                        itemList.push({ mediaUrl, displayUrl, classString });
+                    });
+
+                    return itemList;
+                }, ulElement);
+
+                // for (let i = 0; i < mediaList.length; i++) {
+                //     console.log(mediaList[i]);
+                // }
+                log("[Browser] Scraped items count:", mediaList.length);
+                let firstItem = {};
+                if (mediaList.length > 1) {
+                    finalResponse.data.mediaType = MEDIA_TYPE.MEDIA_GROUP;
+                    firstItem = mediaList[0];
+
+                    for (let i = 0; i < mediaList.length; i++) {
+                        if (mediaList[i].classString.includes("video")) {
+                            mediaList[i].mediaType = MEDIA_TYPE.VIDEO;
+                        } else {
+                            mediaList[i].mediaType = MEDIA_TYPE.IMAGE;
+                        }
+                    }
+                } else if (mediaList.length === 1) {
+                    firstItem = mediaList.shift();
+
+                    if (firstItem.classString.includes("video")) {
+                        finalResponse.data.mediaType = MEDIA_TYPE.VIDEO;
+                    } else {
+                        finalResponse.data.mediaType = MEDIA_TYPE.IMAGE;
+                    }
+                }
+                finalResponse.data.mediaUrl = firstItem.mediaUrl;
+                finalResponse.data.displayUrl = firstItem.displayUrl;
+                finalResponse.data.mediaList = mediaList;
+                finalResponse.success = true;
+            } else {
+                log("[Browser] ul element not found");
+            }
+        } catch (error) {
+            log("[Browser] error scraping items:", error);
+        }
+    } catch (error) {
+        log("[Browser] error in scraping:", error);
+    } finally {
+        // avoid close to reuse
+        // page.close()
+        log("[Browser] page 'not' closed after scraping");
+    }
+
+    return finalResponse;
+};
+
 const scrapWithSnapTik = async (requestUrl) => {
     if(browser == undefined){
         // first initiate.

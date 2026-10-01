@@ -3,8 +3,11 @@ const { log } = require("../utils");
 
 const uri = process.env.MONGO_URI;
 
+
+
 const connectDB = async () => {
     try {
+        log(uri);
         await mongoose.connect(uri);
         log("[DB] MongoDB connected successfully");
     } catch (error) {
